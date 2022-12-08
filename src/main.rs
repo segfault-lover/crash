@@ -2,6 +2,7 @@ use clap::Parser;
 use futures::future;
 
 use hex::FromHex;
+use sha2::{Sha224, Sha256, Sha384, Sha512, Digest};
 
 #[macro_use]
 extern crate log;
@@ -37,7 +38,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     let supported_algos: Vec<String> = vec![
-        "md5".to_string()
+        "md5".to_string(),
+        "sha224".to_string(),
+        "sha256".to_string(),
+        "sha384".to_string(),
+        "sha512".to_string()
     ];
 
     if !supported_algos.contains(&args.algo) {
@@ -97,6 +102,22 @@ async fn compute(variant: String, hash: Vec<u8>, algo: String) {
 
     if algo == "md5" {
         result = md5::compute(variant.as_bytes()).to_vec();
+    } else if algo == "sha224" {
+        let mut hasher = Sha224::new();
+        hasher.update(variant.as_bytes());
+        result = hasher.finalize().to_vec();
+    } else if algo == "sha256" {
+        let mut hasher = Sha256::new();
+        hasher.update(variant.as_bytes());
+        result = hasher.finalize().to_vec();
+    } else if algo == "sha384" {
+        let mut hasher = Sha384::new();
+        hasher.update(variant.as_bytes());
+        result = hasher.finalize().to_vec();
+    } else if algo == "sha512" {
+        let mut hasher = Sha512::new();
+        hasher.update(variant.as_bytes());
+        result = hasher.finalize().to_vec();
     }
 
     if hash == result {
